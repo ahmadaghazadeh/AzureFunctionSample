@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "FunctionApp": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "containerRunArguments": "--init",
+      "httpPort": 33458,
+      "useSSL": false
+    }
+  }
+}
