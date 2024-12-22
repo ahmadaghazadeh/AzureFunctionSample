@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -19,13 +20,13 @@ namespace FunctionApp
         }
 
         [Function("ProductsGetByIdUpdateDelete")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", "put", "delete",
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "put", "delete",
                 Route = "products/{id}")]
-            HttpRequest req, string id)
+            HttpRequestData req, int id)
         {
             if (req.Method == HttpMethods.Get)
             {
-                var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == id);
+                var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == id.ToString());
                 if (product == null) return new NotFoundResult();
                 return new OkObjectResult(product);
             }
@@ -34,19 +35,19 @@ namespace FunctionApp
             {
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                 var product = JsonConvert.DeserializeObject<Product>(requestBody);
-                product.Id = id;
+                product.Id = id.ToString();
                 _context.Products.Update(product);
                 await _context.SaveChangesAsync();
                 return new OkObjectResult(product);
             }
             else
             {
-                var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == id);
+                var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == id.ToString());
                 if (product == null) return new NotFoundResult();
 
                 _context.Products.Remove(product);
                 await _context.SaveChangesAsync();
-                return new NotFoundResult();
+                return new NoContentResult();
             }
         }
     }

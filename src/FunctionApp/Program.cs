@@ -1,3 +1,5 @@
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using FunctionApp;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,10 +11,11 @@ var host = new HostBuilder()
     {
         builder.UseMiddleware<ExceptionHandlingMiddleware>();
         Console.WriteLine("Startup.Configure() running!");
+        //
+        // var keyVaultUrl = new Uri(Environment.GetEnvironmentVariable(" "));
+        // var secretClient = new SecretClient(keyVaultUrl, new DefaultAzureCredential());
+        // var cs = secretClient.GetSecret("sql").Value.Value;
 
-        //var keyVaultUrl = new Uri(Environment.GetEnvironmentVariable("KeyVaultUrl"));
-        //var secretClient = new SecretClient(keyVaultUrl, new DefaultAzureCredential());
-        //var cs = secretClient.GetSecret("sql").Value.Value;
         var connectionString = Environment.GetEnvironmentVariable("Default") ?? "";
 
         builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
